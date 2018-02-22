@@ -18,8 +18,8 @@ class User {
     return u;
   }
 
-  static getOneByName(firstName, lastName) {
-    return User.users.find(u => u.firstName === firstName && u.lastName === lastName);
+  static getOneByName(name) {
+    return User.users.find(u => u.name === name);
   }
 
   static getOneById(userId) {

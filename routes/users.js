@@ -6,9 +6,17 @@ const UserService = require('../services/user_service');
 
 /* GET users listing. */
 router.get('/', (req, res) => {
-  const users = UserService.getAllUsers();
-  res.locals.users = users;
-  res.render('users');
+  (async () => {
+    const users = UserService.getAllUsers();
+    res.locals.users = users;
+    res.render('users');
+  })()
+    .then((r) => {
+      console.log(r);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 });
 
 router.post('/', (req, res) => {

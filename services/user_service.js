@@ -1,14 +1,21 @@
-const User = require('../models/in_memo/user');
+const User = require('../models/mongoose/user');
 const Subscription = require('../models/in_memo/subscription');
 
-module.exports.getAllUsers = () => User.list();
+module.exports.getAllUsers = async () => User.list();
 
-module.exports.addNewUser = (firstName, lastName, age) => User.insert(firstName, lastName, age);
+module.exports.addNewUser = async (name, age) => {
+  const user = User.insert({
+    name,
+    age,
+  });
+  return user;
+};
 
-module.exports.getUserById = userId => User.getOneById(userId);
+module.exports.getUserById = async userId => User.getOneById(userId);
 
-module.exports.createSubscription = (userId, url) => {
+module.exports.createSubscription = async (userId, url) => {
   const user = User.getOneById(userId);
   if (!user) throw Error('no such user!');
-  return Subscription.insert(userId, url);
+  const sub = Subscription.insert(userId, url);
+  return sub;
 };
