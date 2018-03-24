@@ -37,7 +37,7 @@ router.get('/:userId', (req, res) => {
     .then((r) => {
       console.log(r);
     })
-    .catch((e)=>{
+    .catch((e) => {
       console.log(e);
       res.json(e);
     });
