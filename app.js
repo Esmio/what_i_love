@@ -4,7 +4,7 @@ const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session');
+const session = require('express-session');
 const errorHandler = require('./middlewares/http_error_handler.js');
 require('./services/mongodb_connection');
 
@@ -25,10 +25,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cookieSession({
-  name: 'what_i_love_session',
-  keys: ['jdksjflksdfjs'],
-  maxAge: 86400,
+app.use(session({
+  secret: 'fsafdafsfsfsafdsf',
+  resave: true,
+  saveUninitialized: true,
+  cookie: { secure: true },
 }));
 
 app.use('/', index);

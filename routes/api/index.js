@@ -1,25 +1,41 @@
 const express = require('express');
+const JWT = require('jsonwebtoken');
 
 const router = express.Router();
 
 const userRouter = require('./user');
 
-router.get('/login', (req, res, next) => {
-  const { username } = req.query;
-  req.session.user = { username };
-  res.send('done');
+const crypto = require('crypto');
+
+const pbkdf2Async = require('bluebird').promisify(crypto.pbkdf2);
+
+const User = require('../../models/mongoose/user');
+
+router.post('/login', (req, res, next) => {
+  (async () => {
+    const { username, password } = req.body;
+    const cipher = await pbkdf2Async(password, 'dafdfdafdfasf', 10000, 512, 'sha256');
+    const created = User.insert({ username, password: cipher }).then();
+    res.send(created);    
+  })()
+    .then((r) => {
+      console.log(r);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 });
 
 router.get('/hello', (req, res, next) => {
-  const { username } = req.session.user;
-  res.send(`<h1>hello, ${username}</h1>`);
+  const auth = req.get('Authorization');
+  if (!auth) res.send('no auth');
+  if (auth.indexOf('Bearer ') === -1) res.send('no auth');
+  const token = auth.split('Bearer ')[1];
+  const user = JWT.verify(token, 'dafdfdafdfasf');
+  if (user.expireAt < Date.now().valueOf()) res.send('au expired');
+  res.send(user);
 });
 
 router.use('/user', userRouter);
-
-/* GET home page. */
-router.get('/', (req, res) => {
-  res.render('index', { title: 'Hello Simon' });
-});
 
 module.exports = router;
