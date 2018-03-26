@@ -2,21 +2,20 @@ const express = require('express');
 
 const router = express.Router();
 
-const UserService = require('../services/user_service');
-const HTTPReqParamError = require('../errors/http_request_param_error');
+const UserService = require('../../services/user_service');
+const HTTPReqParamError = require('../../errors/http_request_param_error');
 
 /* GET users listing. */
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   (async () => {
     const users = UserService.getAllUsers();
     res.locals.users = users;
-    res.render('users');
   })()
-    .then((r) => {
-      console.log(r);
+    .then(() => {
+      res.render('users');
     })
     .catch((e) => {
-      console.log(e);
+      next(e);
     });
 });
 

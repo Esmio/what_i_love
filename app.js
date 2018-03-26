@@ -4,10 +4,12 @@ const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
+const errorHandler = require('./middlewares/http_error_handler.js');
 require('./services/mongodb_connection');
 
-const index = require('./routes/index');
-const users = require('./routes/users');
+const index = require('./routes/api/index');
+const users = require('./routes/api/user');
 
 const app = express();
 
@@ -23,16 +25,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(cookieSession({
+  name: 'what_i_love_session',
+  keys: ['jdksjflksdfjs'],
+  maxAge: 86400,
+}));
+
 app.use('/', index);
 app.use('/user', users);
 
+app.use(errorHandler());
+
+/*
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
+*/
 
+/*
 // error handler
 app.use((err, req, res) => {
   // set locals, only providing error in development
@@ -42,6 +55,15 @@ app.use((err, req, res) => {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+*/
+
+process.on('unCaughtException', (err)=>{
+
+});
+
+process.on('unHandledReject', (err) => {
+
 });
 
 module.exports = app;
