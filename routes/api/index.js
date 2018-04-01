@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const pbkdf2Async = require('bluebird').promisify(crypto.pbkdf2);
 
 const User = require('../../models/mongoose/user');
-
+/*
 router.post('/login', (req, res, next) => {
   (async () => {
     const { username, password } = req.body;
@@ -34,6 +34,18 @@ router.get('/hello', (req, res, next) => {
   const user = JWT.verify(token, 'dafdfdafdfasf');
   if (user.expireAt < Date.now().valueOf()) res.send('au expired');
   res.send(user);
+});
+*/
+
+router.get('/login', (req, res, next) => {
+  req.session.user = { username: req.query.username };
+  req.session.save();
+  res.send(req.session);
+});
+
+router.get('/hello', (req, res, next) => {
+  console.log(req.session);
+  res.send(`hello,${req.session.user.username}`);
 });
 
 router.use('/user', userRouter);

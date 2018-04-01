@@ -29,7 +29,6 @@ app.use(session({
   secret: 'fsafdafsfsfsafdsf',
   resave: true,
   saveUninitialized: true,
-  cookie: { secure: true },
 }));
 
 app.use('/', index);
