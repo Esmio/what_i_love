@@ -2,11 +2,18 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
+const pbkdf2Async = require('util').promisify(require('crypto').pbkdf2);
+
+const passwordConfig = require('../../cipher/password_config');
+
+const HttpRequestParamError = require('../../errors/http_request_param_error');
+
+
 const UserSchema = new Schema({
   name: { type: String, required: true, index: 1 },
   age: { type: Number, min: 0, max: 120 },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
+  password: { type: String },
 });
 
 const UserModel = mongoose.model('user', UserSchema);
@@ -33,9 +40,56 @@ async function list(params) {
   return users;
 }
 
+async function createUserByNamePass(user) {
+  const nameDupUser = await UserModel.findOne({
+    $or: [
+      {
+        username: user.username,
+      },
+      {
+        name: user.name,
+      },
+    ],
+  }, { _id: 1 });
+
+  if (nameDupUser) {
+    throw new HttpRequestParamError('username', '该用户名或昵称已存在', `duplicate username: ${user.username}`);
+  }
+
+  const passToSave = await pbkdf2Async(
+    user.password,
+    passwordConfig.SALT,
+    passwordConfig.ITERATIO_TIMES,
+    passwordConfig.DIGEST,
+  );
+  const created = await insert({
+    username: user.username,
+    password: passToSave,
+  });
+  return created;
+}
+
+async function getUserByNamePass(username, password) {
+  const passToFind = await pbkdf2Async(
+    password,
+    passwordConfig.SALT,
+    passwordConfig.ITERATIO_TIMES,
+    passwordConfig.DIGEST,
+  );
+  const found = await UserModel.findOne({
+    username,
+    password: passToFind,
+  }, {
+    password: 0,
+  });
+  return found;
+}
+
 module.exports = {
   insert,
   getOneById,
   getOneByName,
   list,
+  createUserByNamePass,
+  getUserByNamePass,
 };

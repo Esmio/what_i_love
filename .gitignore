@@ -1,1 +1,4 @@
 node_modules/
+
+# cipher stuff, never commit it to a public report
+cipher

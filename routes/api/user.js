@@ -5,14 +5,36 @@ const router = express.Router();
 const UserService = require('../../services/user_service');
 const HTTPReqParamError = require('../../errors/http_request_param_error');
 
+const apiRes = require('../../utils/api_response.js');
+
+router.get('/login', (req, res) => {
+  (async () => {
+    const { username, password } = req.body;
+    const result = await UserService.loginWithNamePass(username, password);
+    return result;
+  })()
+    .then((r) => {
+      res.data = r;
+      apiRes(req, res);
+    })
+    .catch((e) => {
+      res.err = e;
+      apiRes(req, res);
+    });
+});
+
 /* GET users listing. */
 router.get('/', (req, res, next) => {
   (async () => {
     const users = UserService.getAllUsers();
-    res.locals.users = users;
+    // res.locals.users = users;
+    return {
+      users,
+    };
   })()
-    .then(() => {
-      res.render('users');
+    .then((r) => {
+      res.data = r;
+      apiRes(req, res);
     })
     .catch((e) => {
       next(e);
@@ -20,8 +42,11 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res) => {
-  const { firstName, lastName, age } = req.body;
-  const u = UserService.addNewUser(firstName, lastName, age);
+  const { username, password } = req.body;
+  const u = UserService.addNewUser({
+    username,
+    password,
+  });
   res.json(u);
 });
 
