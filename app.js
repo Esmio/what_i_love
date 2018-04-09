@@ -8,8 +8,7 @@ const session = require('express-session');
 const errorHandler = require('./middlewares/http_error_handler.js');
 require('./services/mongodb_connection');
 
-const index = require('./routes/api/index');
-const users = require('./routes/api/user');
+const apiIndex = require('./routes/api');
 
 const app = express();
 
@@ -31,8 +30,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-app.use('/', index);
-app.use('/user', users);
+app.use('/api', apiIndex);
 
 app.use(errorHandler());
 

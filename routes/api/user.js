@@ -4,24 +4,8 @@ const router = express.Router();
 
 const UserService = require('../../services/user_service');
 const HTTPReqParamError = require('../../errors/http_request_param_error');
-
 const apiRes = require('../../utils/api_response.js');
-
-router.get('/login', (req, res) => {
-  (async () => {
-    const { username, password } = req.body;
-    const result = await UserService.loginWithNamePass(username, password);
-    return result;
-  })()
-    .then((r) => {
-      res.data = r;
-      apiRes(req, res);
-    })
-    .catch((e) => {
-      res.err = e;
-      apiRes(req, res);
-    });
-});
+const auth = require('../../middlewares/auth');
 
 /* GET users listing. */
 router.get('/', (req, res, next) => {
@@ -67,7 +51,7 @@ router.get('/:userId', (req, res) => {
     });
 });
 
-router.post('/:userId/subscription', (req, res, next) => {
+router.post('/:userId/subscription', auth(), (req, res, next) => {
   try {
     const sub = UserService.createSubscription(Number(req.params.userId), req.body.url);
     res.json(sub);

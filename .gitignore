@@ -1,4 +1,8 @@
 node_modules/
 
+.vscode/
+
+logs
+
 # cipher stuff, never commit it to a public report
 cipher
