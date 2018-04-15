@@ -11,11 +11,18 @@ module.exports.getAllUsers = async () => {
 };
 
 module.exports.addNewUser = async (user) => {
-  if (!user || !user.username || !user.password) {
+  if (!user || !user.username || !user.password || !user.name) {
     throw new HttpRequestParamError('user', '用户名或密码不能为空', 'empty username or password');
   }
-  const created = User.createUserByNamePass(user);
-  return created;
+  const created = await User.createUserByNamePass(user);
+  const token = JWT.sign({
+    _id: created._id.toString(),
+    expireAt: Date.now().valueOf() + JWTConfig.expireIn,
+  }, JWTConfig.SECRET);
+  return {
+    user: created,
+    token,
+  };
 };
 // 登录
 module.exports.loginWithNamePass = (username, password) => {

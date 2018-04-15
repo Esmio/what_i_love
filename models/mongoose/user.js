@@ -24,18 +24,19 @@ async function insert(user) {
 }
 
 async function getOneById(id) {
-  const u = await UserModel.findOne({ _id: id });
+  const u = await UserModel.findOne({ _id: id }, { password: 0 });
   return u;
 }
 
 async function getOneByName(name) {
-  const u = UserModel.findOne({ name });
+  const u = UserModel.findOne({ name }, { password: 0 });
   return u;
 }
 
 async function list(params) {
   const match = {};
   const flow = UserModel.find(match);
+  flow.select({ password: 0 });
   const users = await flow.exec();
   return users;
 }
@@ -50,7 +51,7 @@ async function createUserByNamePass(user) {
         name: user.name,
       },
     ],
-  }, { _id: 1 });
+  }, { _id: 1, password: 0 });
 
   if (nameDupUser) {
     throw new HttpRequestParamError('username', '该用户名或昵称已存在', `duplicate username: ${user.username}`);
@@ -60,13 +61,19 @@ async function createUserByNamePass(user) {
     user.password,
     passwordConfig.SALT,
     passwordConfig.ITERATIO_TIMES,
+    passwordConfig.KEY_LENGTH,
     passwordConfig.DIGEST,
   );
   const created = await insert({
     username: user.username,
     password: passToSave,
+    name: user.name,
   });
-  return created;
+  return {
+    _id: created._id,
+    username: created.username,
+    name: created.name,
+  };
 }
 
 async function getUserByNamePass(username, password) {
@@ -74,6 +81,7 @@ async function getUserByNamePass(username, password) {
     password,
     passwordConfig.SALT,
     passwordConfig.ITERATIO_TIMES,
+    passwordConfig.KEY_LENGTH,
     passwordConfig.DIGEST,
   );
   const found = await UserModel.findOne({

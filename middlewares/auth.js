@@ -1,6 +1,7 @@
 const JWT = require('jsonwebtoken');
 const JWTConfig = require('../cipher/jwt_config');
 const NoAuthError = require('../errors/no_auth');
+const logger = require('../utils/loggers/logger');
 
 module.exports = (options) => {
   return (req, res, next) => {
@@ -20,7 +21,8 @@ module.exports = (options) => {
       try {
         user = JWT.verify(token, JWTConfig.SECRET);
       } catch (e) {
-        throw NoAuthError(token);
+        logger.error(`error verifying user token: ${token}`, { err: e });
+        throw new NoAuthError(token);
       }
 
       req.user = user;

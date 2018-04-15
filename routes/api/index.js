@@ -5,7 +5,7 @@ const apiRes = require('../../utils/api_response');
 
 const router = express.Router();
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res) => {
   (async () => {
     const { username, password } = req.body;
     const result = await UserService.loginWithNamePass(username, password);
