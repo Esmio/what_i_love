@@ -1,3 +1,5 @@
+/* eslint no-console: ["error", { allow: ["warn", "error"] }] */
+
 const express = require('express');
 const path = require('path');
 // const favicon = require('serve-favicon');
@@ -56,12 +58,12 @@ app.use((err, req, res) => {
 });
 */
 
-process.on('unCaughtException', (err)=>{
-
+process.on('unCaughtException', (err) => {
+  console.error('err', err);
 });
 
 process.on('unHandledReject', (err) => {
-
+  console.error('err', err);
 });
 
 module.exports = app;
